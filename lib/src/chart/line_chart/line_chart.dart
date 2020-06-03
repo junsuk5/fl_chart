@@ -11,6 +11,7 @@ import 'line_chart_painter.dart';
 class LineChart extends ImplicitlyAnimatedWidget {
   /// Determines how the [LineChart] should be look like.
   final LineChartData data;
+  final int currentX;
 
   /// [data] determines how the [LineChart] should be look like,
   /// when you make any change in the [LineChartData], it updates
@@ -18,6 +19,7 @@ class LineChart extends ImplicitlyAnimatedWidget {
   const LineChart(
     this.data, {
     Duration swapAnimationDuration = const Duration(milliseconds: 150),
+    this.currentX,
   }) : super(duration: swapAnimationDuration);
 
   /// Creates a [_LineChartState]
@@ -136,7 +138,7 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
           setState(() {
             _touchHandler = touchHandler;
           });
-        }, textScale: MediaQuery.of(context).textScaleFactor),
+        }, textScale: MediaQuery.of(context).textScaleFactor, currentX: widget.currentX),
       ),
     );
   }

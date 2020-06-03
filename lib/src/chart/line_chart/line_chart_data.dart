@@ -566,6 +566,8 @@ class BarAreaData with EquatableMixin {
   /// determines should or shouldn't apply cutOffY
   final bool applyCutOffY;
 
+  final int currentX;
+
   /// if [show] is true, [LineChart] fills above and below area of each line
   /// with a color or gradient.
   ///
@@ -589,6 +591,7 @@ class BarAreaData with EquatableMixin {
     BarAreaSpotsLine spotsLine,
     double cutOffY,
     bool applyCutOffY,
+    int currentX,
   })  : show = show ?? false,
         colors = colors ?? [Colors.blueGrey],
         gradientFrom = gradientFrom ?? const Offset(0, 0),
@@ -597,6 +600,7 @@ class BarAreaData with EquatableMixin {
         spotsLine = spotsLine ?? BarAreaSpotsLine(),
         cutOffY = cutOffY,
         applyCutOffY = applyCutOffY ?? false,
+        currentX = currentX,
         assert(applyCutOffY == true ? cutOffY != null : true);
 
   /// Lerps a [BarAreaData] based on [t] value, check [Tween.lerp].

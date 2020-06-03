@@ -27,6 +27,8 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
       _bgTouchTooltipPaint,
       _imagePaint;
 
+  int _currentX;
+
   /// Paints [data] into canvas, it is the animating [LineChartData],
   /// [targetData] is the animation's target and remains the same
   /// during animation, then we should use it  when we need to show
@@ -40,9 +42,11 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
   /// the system's font size.
   LineChartPainter(
       LineChartData data, LineChartData targetData, Function(TouchHandler) touchHandler,
-      {double textScale})
+      {double textScale, int currentX})
       : super(data, targetData, textScale: textScale) {
     touchHandler(this);
+
+    _currentX = currentX;
 
     _barPaint = Paint()..style = PaintingStyle.stroke;
 
@@ -101,7 +105,7 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
         continue;
       }
 
-      _drawBarLine(canvas, size, barData);
+      _drawBarLine(canvas, size, barData, _currentX);
       _drawDots(canvas, size, barData);
 
       if (data.extraLinesData != null && data.extraLinesData.extraLinesOnTop) {
@@ -168,7 +172,7 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
     canvas.clipRect(rect);
   }
 
-  void _drawBarLine(Canvas canvas, Size viewSize, LineChartBarData barData) {
+  void _drawBarLine(Canvas canvas, Size viewSize, LineChartBarData barData, int currentX) {
     final List<List<FlSpot>> barList = [[]];
 
     // handle nullability by splitting off the list into multiple
@@ -198,7 +202,7 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
       final completelyFillAboveBarPath =
           _generateAboveBarPath(viewSize, barData, barPath, bar, fillCompletely: true);
 
-      _drawBelowBar(canvas, viewSize, belowBarPath, completelyFillAboveBarPath, barData);
+      _drawBelowBar(canvas, viewSize, belowBarPath, completelyFillAboveBarPath, barData, bar, currentX);
       _drawAboveBar(canvas, viewSize, aboveBarPath, completelyFillBelowBarPath, barData);
       _drawBarShadow(canvas, viewSize, barPath, barData);
       _drawBar(canvas, viewSize, barPath, barData);
@@ -553,7 +557,7 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
   /// [belowBarPath] maybe draw over the main bar line,
   /// then to fix the problem we use [filledAboveBarPath] to clear the above section from this draw.
   void _drawBelowBar(Canvas canvas, Size viewSize, Path belowBarPath, Path filledAboveBarPath,
-      LineChartBarData barData) {
+      LineChartBarData barData, List<FlSpot> barSpots, int currentX) {
     if (!barData.belowBarData.show) {
       return;
     }
@@ -599,6 +603,13 @@ class LineChartPainter extends AxisChartPainter<LineChartData>
     }
 
     canvas.drawPath(belowBarPath, _barAreaPaint);
+
+    if (currentX != null) {
+      final offsetX = getPixelX(barSpots[currentX].x, chartViewSize);
+      final clearRect = Rect.fromLTRB(
+          offsetX, 0, viewSize.width, viewSize.height);
+      canvas.drawRect(clearRect, _clearBarAreaPaint);
+    }
 
     // clear the above area that get out of the bar line
     if (barData.belowBarData.applyCutOffY) {
